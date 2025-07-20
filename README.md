@@ -4,6 +4,8 @@
 
 This repository contains code implementation for simulator of the paper "EasyUUV: An LLM-Enhanced Universal and Lightweight Sim-to-Real Reinforcement Learning Framework for UUV Attitude Control".
 
+The hardware deployment code repository refers to [**HERE**](https://github.com/360ZMEM/EasyUUV-UUV-Deploy)
+
 <这里放图片>
 
 ## Simulator Deployment
