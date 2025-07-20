@@ -46,7 +46,7 @@ def get_thruster_com_and_orientations(device):
 
     return create_tf_quat(x, y, z, w, vx, vy, vz)
 
-  length = 0.56 
+  length = 0.56 # approximate value
   width = 0.43   
   height = 0.24  
 
@@ -154,79 +154,3 @@ def get_thruster_com_and_orientations(device):
   ])
 
   return thruster_com_offsets, thruster_quats
-
-
-class Dynamics(ABC):
-
-  def __init__(self, numEnvs:int, num_thrusters_per_env:int, device:torch.device) -> None: 
-    self.numEnvs = numEnvs
-    self.num_thrusters_per_env = num_thrusters_per_env
-    self.device = device
-    self.reset_all()
-
-  # maskArr is a boolean array of size (numEnvs) where envs with value=True are reset
-  def reset(self, maskArr:list):
-    self.state[maskArr,:] = 0.0
-    self.prevTime[maskArr] = -1.0
-
-  def reset_all(self):
-    self.state = torch.zeros((self.numEnvs, self.num_thrusters_per_env), dtype=torch.float32, device=self.device, requires_grad=False)
-    self.prevTime = torch.ones((self.numEnvs), dtype=torch.float32, device=self.device, requires_grad=False) * -1.0
-
-  @abstractmethod
-  def update(self, cmd:torch.tensor, t:float) -> float:
-    pass
-
-class DynamicsFirstOrder(Dynamics):
-
-  def __init__(self, numEnvs:int, num_thrusters_per_env:int, tau:float, device:torch.device):
-    super().__init__(numEnvs=numEnvs, num_thrusters_per_env=num_thrusters_per_env, device=device)
-    self.tau = tau
-
-  # cmd: torch.tensor of shape (numEnvs, num_thrusters_per_env) 
-  # t: torch.tensor of shape (numEnvs) with the current times 
-  # given force commands, update the state of system and report current thrusts 
-  def update(self, cmd:torch.tensor, t:torch.tensor) -> float:
-    # old method would return state if single time was not set yet
-    #if self.prevTime < 0:
-    #  self.prevTime = t
-    #  return self.state
-
-    # set previously unupdated times to the current time in those envs
-    self.prevTime[self.prevTime < 0] = t[self.prevTime < 0]
-
-    # because dt = 0 for previously unupdated times, alpha=1 and we just get the previous state 
-    dt = t - self.prevTime
-    alpha = torch.exp(-dt/self.tau)
-    alpha = torch.zeros_like(alpha) # todo: this wipes out alpha, always just sets it to the command!
-    #print(self.state.shape, cmd.shape, alpha.shape)
-    #print(dt, alpha, self.state)
-
-    self.state = self.state * alpha.unsqueeze(-1) + (1.0 - alpha).unsqueeze(-1) * cmd
-    assert torch.any(self.state == cmd)
-
-    self.prevTime = t
-    return self.state
-
-# based on https://github.com/uuvsimulator/uuv_simulator/blob/master/uuv_gazebo_plugins/uuv_gazebo_plugins/src/ThrusterConversionFcn.cc
-@dataclass
-class ConversionFunction(ABC):
-
-  @abstractmethod
-  def convert(self, cmd:np.ndarray) -> float:
-    pass
-
-class ConversionFunctionBasic(ConversionFunction):
-
-  # rotorConstant: the rotor constant  
-  rotorConstant: float
-
-  def __init__(self, rotorConstant:float):
-    super().__init__()
-    self.rotorConstant = rotorConstant
-
-  # cmd: np.ndarray of shape (numEnvs, num_thrusters_per_env)
-  # converts velocity commands to thrust 
-  def convert(self, cmd:torch.tensor) -> float:
-    return self.rotorConstant * torch.abs(cmd) * cmd 
-  
