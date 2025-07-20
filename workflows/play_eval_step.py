@@ -63,7 +63,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from asymmetric_noise_cfg import *
 
-import datetime
+from datetime import datetime
 strftime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 def angle_remap(angle):
