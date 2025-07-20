@@ -126,10 +126,6 @@ def main():
 
     env_cfg.eval_mode = True
 
-
-    # 0.1648 0.1448 0.2343
-    # 0.1143 0.1571 0.1969
-
     env_cfg.control_method = 'Ssurface'
     env_cfg.s_ratio = 4.9
     env_cfg.self_adapt = True

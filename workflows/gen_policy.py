@@ -55,50 +55,9 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
     export_policy_as_onnx,
 )
 
-
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from asymmetric_noise_cfg import *
-
-def angle_remap(angle):
-    return (angle + torch.pi) % (2*torch.pi) - torch.pi 
-
-def ang_to_quat(roll:np.ndarray, pitch:np.ndarray, yaw:np.ndarray) -> np.ndarray:
-    q = np.zeros((len(roll), 4))
-    q[:, 0] = np.cos(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) + np.sin(roll / 2) * np.sin(pitch / 2) * np.sin(yaw / 2)
-    q[:, 1] = np.sin(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) - np.cos(roll / 2) * np.sin(pitch / 2) * np.sin(yaw / 2)
-    q[:, 2] = np.cos(roll / 2) * np.sin(pitch / 2) * np.cos(yaw / 2) + np.sin(roll / 2) * np.cos(pitch / 2) * np.sin(yaw / 2)
-    q[:, 3] = np.cos(roll / 2) * np.cos(pitch / 2) * np.sin(yaw / 2) - np.sin(roll / 2) * np.sin(pitch / 2) * np.cos(yaw / 2)
-    return q
-
-def quat_diff(quat1:np.ndarray, quat2:np.ndarray) -> np.ndarray:
-    q1_conjugate = quat1.copy()
-    q1_conjugate[:, 1:] *= -1  
-    diff = np.zeros_like(quat1)
-    for i in range(len(quat1)):
-        diff[i, 0] = quat2[i, 0] * q1_conjugate[i, 0] - quat2[i, 1] * q1_conjugate[i, 1] - quat2[i, 2] * q1_conjugate[i, 2] - quat2[i, 3] * q1_conjugate[i, 3]
-        diff[i, 1] = quat2[i, 0] * q1_conjugate[i, 1] + quat2[i, 1] * q1_conjugate[i, 0] + quat2[i, 2] * q1_conjugate[i, 3] - quat2[i, 3] * q1_conjugate[i, 2]
-        diff[i, 2] = quat2[i, 0] * q1_conjugate[i, 2] - quat2[i, 1] * q1_conjugate[i, 3] + quat2[i, 2] * q1_conjugate[i, 0] + quat2[i, 3] * q1_conjugate[i, 1]
-        diff[i, 3] = quat2[i, 0] * q1_conjugate[i, 3] + quat2[i, 1] * q1_conjugate[i, 2] - quat2[i, 2] * q1_conjugate[i, 1] + quat2[i, 3] * q1_conjugate[i, 0]
-    return diff
-
-def generate_signal(duration=1.4, sample_rate=1000, amplitude = np.pi / 2, frequencies = [0.1, 0.2, 0.5, 1.0, 2.0, 3.5]):
-    t = np.linspace(0, duration, int(duration * sample_rate), endpoint=False)
-    signal = np.zeros_like(t)
-
-    for freq in frequencies:
-        signal += np.sin(2 * np.pi * freq * t)
-
-    max_abs = np.max(np.abs(signal))
-    if max_abs != 0:
-        signal = signal / max_abs
-
-    signal *= amplitude
-    return t, signal
-
-_, signal1 = generate_signal(amplitude=1.1, frequencies = [-0.1, 0.2, 0.5, -1.0, 2.0, 3.5]) 
-_, signal2 = generate_signal(amplitude=1.35, frequencies = [-0.1, 0.2, 0.4, 0.8, 1.6, -3.2]) 
-_, signal3 = generate_signal(amplitude=0.95, frequencies = [0.15, 0.3, 0.5, -0.9, 1.8, -3]) 
 
 def main():
     """Play with RSL-RL agent."""
@@ -106,26 +65,6 @@ def main():
     env_cfg = parse_env_cfg(
         args_cli.task, use_gpu=not args_cli.cpu, num_envs=1, use_fabric=not args_cli.disable_fabric
     )
-
-    env_cfg.domain_randomization.use_custom_randomization = False
-    # env_cfg.com_to_cob_offset[0] += args_cli.com_cob_offset
-    env_cfg.volume = 0.0228
-
-    env_cfg.use_boundaries = False
-    env_cfg.cap_episode_length = False
-    env_cfg.episode_length_before_reset = 0
-
-    env_cfg.goal_spawn_radius = 0
-
-    env_cfg.eval_mode = True
-
-
-    # 0.1648 0.1448 0.2343
-    # 0.1143 0.1571 0.1969
-
-    env_cfg.control_method = 'Ssurface'
-    env_cfg.s_ratio = 4.9
-    env_cfg.self_adapt = True
 
     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
 

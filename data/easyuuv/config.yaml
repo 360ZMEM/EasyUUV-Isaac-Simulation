@@ -1,6 +1,6 @@
-asset_path: /workspace/isaaclab/source/files/EasyUUV.urdf
-usd_dir: /workspace/isaaclab/source/extensions/omni.isaac.lab_assets/data/robots/EasyUUV
-usd_file_name: EasyUUV.usd
+asset_path: /workspace/isaaclab/source/files/model.urdf
+usd_dir: /workspace/isaaclab/source/extensions/omni.isaac.lab_assets/data/robots/easyuuv
+usd_file_name: model.usd
 force_usd_conversion: true
 make_instanceable: true
 import_inertia_tensor: true

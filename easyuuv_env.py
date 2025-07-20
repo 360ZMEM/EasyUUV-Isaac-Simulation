@@ -5,7 +5,7 @@ import math
 import torch
 from collections.abc import Sequence
 
-from .assets.easyuuv import WARPAUV_CFG
+from .assets.easyuuv import EasyUUV_CFG
 
 import omni.isaac.lab.sim as sim_utils
 from omni.isaac.lab.assets import RigidObject, RigidObjectCfg
@@ -53,7 +53,7 @@ class EasyUUVEnvCfg(DirectRLEnvCfg):
     sim: SimulationCfg = SimulationCfg(dt=1 / 120)
 
     # robot
-    robot_cfg: RigidObjectCfg = WARPAUV_CFG.replace(prim_path="/World/envs/env_.*/Robot")
+    robot_cfg: RigidObjectCfg = EasyUUV_CFG.replace(prim_path="/World/envs/env_.*/Robot")
 
     # scene
     scene: InteractiveSceneCfg = InteractiveSceneCfg(num_envs=4, env_spacing=4.0, replicate_physics=True)
@@ -116,8 +116,8 @@ class EasyUUVEnvCfg(DirectRLEnvCfg):
      # domain randomization
     # todo: isaaclabs has a built-in method somehow
     class domain_randomization:
-        use_custom_randomization = True
-        com_to_cob_offset_radius = 0.135 
+        use_custom_randomization = False
+        com_to_cob_offset_radius = 0.075
         volume_range = [0.0227478435 - 0.003, 0.0227478435 + 0.003]
         mass_range = [2.2701e+01,2.2701e+01] # uniform [lowerbound, upperbound]
         PID_PWM_value = 0.6
@@ -458,19 +458,25 @@ class EasyUUVEnv(DirectRLEnv):
 
         if self._debug: print("motorValues: ", motorValues)
 
-        # convert the PWM commands to rad/s using method in https://gitlab.com/warplab/ros/warpauv/warpauv_simulation/-/blob/master/src/robot_sim_interface.py
         # lower the PWM threshold
         threshold = 0.08
+
+        # thruster dynamics
+
         motorValues[torch.abs(motorValues) < threshold] = 0 
-        motorValues[motorValues >= threshold] = -139.0 * (torch.pow(motorValues[motorValues >= threshold], 2.0)) + 500 * motorValues[motorValues >= threshold] + 8.28
-        motorValues[motorValues <= -threshold] = 161.0 * (torch.pow(motorValues[motorValues <= -threshold], 2.0)) + 517.86 * motorValues[motorValues <= -threshold] - 5.72
 
-        # get the current motor velocities using thruster dynamics
-        # TODO: CHECK THAT SIM DT IS CORRECT HERE
-        motorValues = self.thruster_dynamics.update(motorValues, self.episode_length_buf * self.sim.cfg.dt)
+        motorValues[motorValues >= threshold] = 29.54 * (torch.pow(motorValues[motorValues >= threshold], 2.0)) + 26.1 * motorValues[motorValues >= threshold] - 2.44
+        motorValues[motorValues <= -threshold] = -21.75 * (torch.pow(motorValues[motorValues <= -threshold], 2.0)) + 21.75 * motorValues[motorValues <= -threshold] + 2.07
 
-        # get thruster forces from their speeds using the thruster conversion function 
-        motorValues = self.thruster_conversion.convert(motorValues)
+        # motorValues[motorValues >= threshold] = -139.0 * (torch.pow(motorValues[motorValues >= threshold], 2.0)) + 500 * motorValues[motorValues >= threshold] + 8.28
+        # motorValues[motorValues <= -threshold] = 161.0 * (torch.pow(motorValues[motorValues <= -threshold], 2.0)) + 517.86 * motorValues[motorValues <= -threshold] - 5.72
+
+        # # get the current motor velocities using thruster dynamics
+        # # TODO: CHECK THAT SIM DT IS CORRECT HERE
+        # motorValues = self.thruster_dynamics.update(motorValues, self.episode_length_buf * self.sim.cfg.dt)
+
+        # # get thruster forces from their speeds using the thruster conversion function 
+        # motorValues = self.thruster_conversion.convert(motorValues)
 
         # TODO: this could be taken out of the physics step
         thruster_forces[..., 0] = 1.0 # start with forces in the x direction
