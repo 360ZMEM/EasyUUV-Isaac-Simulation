@@ -131,11 +131,6 @@ def main():
     env_cfg.control_method = 'Ssurface'
     env_cfg.s_ratio = 3
     env_cfg.self_adapt = True
-    # PID_PWM_value = 0.6
-    # env_cfg.PID_init_args = torch.tensor([[0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # x-axis rotation, Roll
-    #                  [0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # y-axis rotation, Pitch
-    #                  [1.0 / PID_PWM_value, 0.13/ PID_PWM_value, 0 / PID_PWM_value], # z-axis rotation, Yaw
-    #                  [0.16 / PID_PWM_value, 0.07/ PID_PWM_value, 0 / PID_PWM_value]],device='cuda:0')
 
     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
 

@@ -18,7 +18,7 @@ from .easyuuv_env import EasyUUVEnv, EasyUUVEnvCfg
 
 gym.register(
     id="EasyUUV-Direct-v1",
-    entry_point="omni.isaac.lab_tasks.direct.easyuuv:EasyUUVEnv",
+    entry_point="omni.isaac.lab_tasks.direct.EasyUUV-Isaac-Simulation:EasyUUVEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": EasyUUVEnvCfg,

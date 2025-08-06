@@ -112,7 +112,6 @@ class EasyUUVEnvCfg(DirectRLEnvCfg):
     s_ratio = 4 # (Ssurface coeff / PID coeff)
     self_adapt = False # dummy if control_method == 'PID'
 
-
      # domain randomization
     # todo: isaaclabs has a built-in method somehow
     class domain_randomization:
@@ -239,23 +238,12 @@ class EasyUUVEnv(DirectRLEnv):
         self._robot.set_external_force_and_torque(self._thrust, self._moment)
 
     def _get_observations(self) -> dict:
-        #desired_pos_b = quat_apply(quat_conjugate(self._robot.data.root_quat_w), self._goal - self._robot.data.root_pos_w)
         offset_from_origin_b = quat_apply(quat_conjugate(self._robot.data.root_quat_w), self._default_env_origins - self._robot.data.root_pos_w)
-
-        # Uniquefy and normalize all quaternions
-        # goal = self._goal
-        # root_quat_w = self._robot.data.root_quat_w
-        # goal = math_utils.normalize(math_utils.quat_unique(self._goal))
-        # root_quat_w = math_utils.normalize(math_utils.quat_unique(self._robot.data.root_quat_w))
-
         obs = torch.cat(
             [
                 self._goal, # 4
-                # offset_from_origin_b[:,2].unsqueeze(1),
                 self._robot.data.root_pos_w[:,2].unsqueeze(1), # 1
                 self._robot.data.root_quat_w,# 4
-                # self._robot.data.root_lin_vel_b,
-                # self._robot.data.root_ang_vel_b,
             ],
             dim=-1
         )
@@ -324,11 +312,6 @@ class EasyUUVEnv(DirectRLEnv):
             # Randomize initial position relative to the origin
             self._default_root_state[env_ids, :3] += self._sample_from_sphere(len(env_ids), self.cfg.goal_spawn_radius)
 
-            # Randomize initial orientation relative to the origin
-            # self._default_root_state[env_ids, 3:7] = math_utils.random_orientation(len(env_ids), device=self.device)
-            
-            # Randomize initial linear and rotational velocities
-            # self._default_root_state[env_ids, 7:13] = math_utils.sample_uniform(-self.cfg.init_vel_max, self.cfg.init_vel_max, (len(env_ids), 6), device=self.device)
 
         self._step_count = 0
         
@@ -359,17 +342,8 @@ class EasyUUVEnv(DirectRLEnv):
 
     # OVERRIDE THIS FUNC TO CHANGE GOAL
     def _reset_goal(self, env_ids: Sequence[int]):
-        # Get random orientation
         self._goal[env_ids, 0:4] = math_utils.random_orientation(len(env_ids), device=self.device)
 
-        # Get random yaw orientation with 0 pitch and roll
-        # self._goal[env_ids,0:4] = math_utils.random_yaw_orientation(len(env_ids), device=self.device)
-
-        # Get fix RPY
-        # rs = torch.zeros(len(env_ids), device=self.device) + 0.0
-        # ps = torch.zeros(len(env_ids), device=self.device) + 0.0
-        # ys = torch.zeros(len(env_ids), device=self.device) + 0.0
-        # self._goal[env_ids,0:4] = math_utils.quat_from_euler_xyz(rs, ps, ys)
 
     def _reset_domain(self, env_ids: Sequence[int]):
         self.masses[env_ids] = self.masses[env_ids]

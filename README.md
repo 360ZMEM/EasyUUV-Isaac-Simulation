@@ -28,7 +28,7 @@ Create a symbolic link or copy the directory to install the reinforcement learni
 
 ```bash
 git clone https://github.com/360ZMEM/EasyUUV-Isaac-Simulation.git
-ln -s EasyUUV-Isaac-Simulation <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/easyuuv
+ln -s EasyUUV-Isaac-Simulation <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/EasyUUV-Isaac-Simulation
 ```
 
 ### Training
@@ -42,23 +42,23 @@ Train using the following command (ensure correct Python environment activation 
 Monitor training with Tensorboard:
 
 ```bash
-tensorboard --logdir <IsaacLab_Path>/logs/rsl_rl/easyuuv/
+tensorboard --logdir <IsaacLab_Path>/logs/rsl_rl/EasyUUV-Isaac-Simulation/
 ```
 
 Generated policy checkpoints can be exported to Torch JIT/ONNX formats using:
 
 ```bash
-./isaaclab.sh -p <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/easyuuv/workflows/gen_policy.py
+./isaaclab.sh -p <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/EasyUUV-Isaac-Simulation/workflows/gen_policy.py
 ```
 
-Exported files will be saved at `<IsaacLab_Path>/logs/rsl_rl/easyuuv/<latest_date>/exported/policy.pt` (contains both Torch JIT and ONNX formats). Load Torch JIT models with `torch.jit.load()`. Note that RSL-RL creates date-stamped folders for each training session, where `<latest_date>` represents the most recent timestamp folder.
+Exported files will be saved at `<IsaacLab_Path>/logs/rsl_rl/EasyUUV-Isaac-Simulation/<latest_date>/exported/policy.pt` (contains both Torch JIT and ONNX formats). Load Torch JIT models with `torch.jit.load()`. Note that RSL-RL creates date-stamped folders for each training session, where `<latest_date>` represents the most recent timestamp folder.
 
 ### Evaluation
 
 The `workflows` directory contains trajectory tracking implementations. For example:
 
 ```bash
-./isaaclab.sh -p <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/easyuuv/workflows/play_eval_task1.py
+./isaaclab.sh -p <IsaacLab_Path>/source/extensions/omni.isaac.lab_tasks/omni/isaac/lab_tasks/direct/EasyUUV-Isaac-Simulation/workflows/play_eval_task1.py
 ```
 
 - `play_eval.py`: Tracks sinusoidal signals.
@@ -66,7 +66,7 @@ The `workflows` directory contains trajectory tracking implementations. For exam
 - `play_eval_step.py`: Tracks step signals.
 - `play_controller.py`: Bypasses RL for direct controller implementation.
 
-Note: Requires prior configuration of `wandb` for real-time visualization. Also, we provide offline file for tracking result: `<IsaacLab_Path>/source/results/rsl_rl/easyuuv/.*/model_.*_play/logs.csv`.
+Note: Requires prior configuration of `wandb` for real-time visualization. Also, we provide offline file for tracking result: `<IsaacLab_Path>/source/results/rsl_rl/EasyUUV-Isaac-Simulation/.*/model_.*_play/logs.csv`.
 
 ## Acknowledgement
 

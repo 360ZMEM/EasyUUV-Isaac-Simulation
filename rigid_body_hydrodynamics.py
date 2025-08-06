@@ -1,11 +1,3 @@
-"""
-Compute hydrodynamic forces and torques on a rigid body
-
-Based on the descriptions of the MuJoCo hydrodynamic model: https://mujoco.readthedocs.io/en/3.0.1/computation/fluid.html
-
-Authors: Ethan Fahnestock and Levi "Veevee" Cai (cail@mit.edu)
-"""
-
 from dataclasses import dataclass
 from typing import Tuple
 from omni.isaac.lab.utils.math import quat_conjugate, quat_inv, quat_apply, convert_quat
@@ -40,7 +32,6 @@ class HydrodynamicForceModels:
 
     buoyancy_directions_b = quat_apply(quat_conjugate(root_quats_w), buoyancy_directions_w)
 
-    # todo: we should actually be computing buoyancy forces at the root of the vehicle, not the COB, is this the same though?
     buoyancy_forces_at_cob_b = buoyancy_directions_b * fluid_density * volumes.repeat(1,3) * g_mag
     buoyancy_forces_b = buoyancy_forces_at_cob_b
 
@@ -109,7 +100,6 @@ class HydrodynamicForceModels:
     return (f_d, g_d, f_v, g_v)
 
 if __name__ == "__main__":
-  # do some unit tests! 
   device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
   water_rho = 997.0 # kg/m^3
   water_beta = 0.001306 # Pa s, dynamic viscosity of water @ 50 deg F
@@ -154,6 +144,3 @@ if __name__ == "__main__":
   root_angvels = torch.tensor([[[0.0, 0.0, 0.0]],
                                [[0.0, 0.0, 0.0]],
   ])
-
-  #env_inertia_tensors = 
-  #dens_force, dense_torqe, visc_force, visc_torque = forceModel.calculate_density_and_viscosity_forces(root_linvels, root_angvels, env_inertia_tensors, water_beta, water_rho)

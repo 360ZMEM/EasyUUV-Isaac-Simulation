@@ -1,10 +1,3 @@
-"""
-Thruster dynamics and model for EasyUUV
-
-Author: Ethan Fahnestock
-"""
-# based on https://github.com/uuvsimulator/uuv_simulator/blob/master/uuv_gazebo_plugins/uuv_gazebo_plugins/src/Dynamics.cc
-
 from omni.isaac.lab.utils.math import quat_from_euler_xyz
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
@@ -12,10 +5,6 @@ import numpy as np
 import torch
 
 def get_thruster_com_and_orientations(device):
-  """
-  todo: this entire function should be handled by the USD/URDF model and Configuration files, with named actuators
-  This function retrieves the thruster extrinsics for a single vehicle
-  """
   def create_tf_rpy(x,y,z,rr,rp,ry):
     print(rr,rp,ry)
     shift = torch.Tensor([x, y, z])
@@ -46,7 +35,7 @@ def get_thruster_com_and_orientations(device):
 
     return create_tf_quat(x, y, z, w, vx, vy, vz)
 
-  length = 0.56 # approximate value
+  length = 0.56 # approximate value, not precise
   width = 0.43   
   height = 0.24  
 
@@ -117,7 +106,6 @@ def get_thruster_com_and_orientations(device):
       )
   }
   # vector pointing from com->thruster location (thruster, 3)
-  # THRUSTER ORDERING IS 
 
   # new THRUSTER ORDERING IS 
   # 0 - front_left_vertical
