@@ -605,8 +605,8 @@ def _compute_rewards(
     actions: torch.Tensor,
 ):
 
-    # Reward position accuracy, todo: scale the gaussian std appropriately
-    rew_pos = rew_scale_pos * torch.exp(-1 * torch.norm(offsets_from_origin, dim=1)**2)
+    # Reward depth accuracy
+    rew_pos = rew_scale_pos * torch.exp(-1 * (torch.abs(offsets_from_origin[:,2]) ** 2))
 
     # Reward angular accuracy, todo: scale the gaussian std appropriately
     # Uniquefy and normalize all quaternions
@@ -619,6 +619,5 @@ def _compute_rewards(
     rew_action = rew_scale_actions * torch.exp(-1 * torch.norm(actions, dim=1) ** 0.5)
 
     total_rew = rew_ang + rew_action + rew_pos + rew_ang_vel
-
 
     return total_rew
