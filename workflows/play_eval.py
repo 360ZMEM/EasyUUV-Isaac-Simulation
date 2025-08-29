@@ -1,8 +1,6 @@
 import pdb
 import argparse
 import os
-os.environ["HTTP_PROXY"] = "http://127.0.0.1:7890"
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:7890"
 from omni.isaac.lab.app import AppLauncher
 
 # local imports
@@ -21,8 +19,6 @@ parser.add_argument("--eval_name", type=str, default='eval_sin', help="Name of t
 parser.add_argument("--custom_weights", type=str, default=None, help="Path to custom weights file")
 
 # Eval parameters
-parser.add_argument("--com_cob_offset", type=float, default=0.01, help="Distance of center of buoyancy from the center of mass along the X axis")
-parser.add_argument("--volume", type=float, default=0.228, help="Volume of the robot for buoyancy force estimates")
 parser.add_argument("--action_noise_std", type=float, default=0., help="Standard deviation of action noise distribution")
 parser.add_argument("--observation_noise_std", type=float, default=0., help="Standard deviation of observation noise distribution")
 
@@ -95,10 +91,8 @@ def main():
     )
 
     env_cfg.domain_randomization.use_custom_randomization = False
-    env_cfg.volume = 0.02166# 0.2166 0.228 0.2394
-    env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.025
-    # env_cfg.com_to_cob_offset[0] += args_cli.com_cob_offset
-    # env_cfg.volume = args_cli.volume
+    env_cfg.volume = 0.0187613 # set volume
+    # env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.025 # set CoB-CoM shift (m)
 
     env_cfg.use_boundaries = False
     env_cfg.cap_episode_length = False
@@ -109,13 +103,8 @@ def main():
     env_cfg.eval_mode = True
 
     env_cfg.control_method = 'Ssurface'
-    env_cfg.s_ratio = 4.9
+    env_cfg.s_ratio = 4
     env_cfg.self_adapt = True
-    # PID_PWM_value = 0.6
-    # env_cfg.PID_init_args = torch.tensor([[0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # x-axis rotation, Roll
-    #                  [0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # y-axis rotation, Pitch
-    #                  [1.0 / PID_PWM_value, 0.13/ PID_PWM_value, 0 / PID_PWM_value], # z-axis rotation, Yaw
-    #                  [0.16 / PID_PWM_value, 0.07/ PID_PWM_value, 0 / PID_PWM_value]],device='cuda:0')
 
     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
 
@@ -143,7 +132,7 @@ def main():
 
     # load previously trained model
     ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
-    ppo_runner.load('/home/zmem063/isaaclab/logs/rsl_rl/warpauv_direct/SS4_DRB/model_500.pt') # '/home/zmem063/isaaclab/logs/rsl_rl/warpauv_direct/2025-07-06_22-24-21/model_450.pt'
+    ppo_runner.load(resume_path)
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
 
     # create dir to save logs into
@@ -189,7 +178,7 @@ def main():
     )
     export_policy_as_onnx(ppo_runner.alg.actor_critic, path=export_model_dir, filename="policy.onnx")
 
-    goal_list = [
+    goal_list = [ # DUMMY
         # ([0, 0, 0], [1, 0, 0]),
         # ([0, 0, 0], [-1, 0, 0]),
         # ([0, 0, 0], [0, 1, 0]),
@@ -220,11 +209,11 @@ def main():
         # get next action
         goal_orientation, goal_pos = goal_list[action_ix]
 
-        t = counter / 60 # 1199
+        t = counter / 60
         goal_roll = 0.4 * np.sin(t * 1.4)
         goal_pitch = 0.55 * np.cos(t * 1.2)
         goal_yaw = np.sin(t)
-        goal_orientation = [goal_roll, goal_pitch, goal_yaw]
+        goal_orientation = [goal_roll, goal_pitch, goal_yaw] # REAL
 
         # run everything in inference mode
         with torch.inference_mode():

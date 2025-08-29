@@ -1,8 +1,6 @@
 import pdb
 import argparse
 import os
-os.environ["HTTP_PROXY"] = "http://127.0.0.1:7890"
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:7890"
 from omni.isaac.lab.app import AppLauncher
 
 # local imports
@@ -87,7 +85,7 @@ def main():
 
     # load previously trained model
     ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
-    ppo_runner.load('/home/zmem063/isaaclab/logs/rsl_rl/warpauv_direct/SSA/model_500.pt')
+    ppo_runner.load(resume_path)
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
 
     # create dir to save logs into

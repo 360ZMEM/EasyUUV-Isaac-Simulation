@@ -1,8 +1,6 @@
 import pdb
 import argparse
 import os
-os.environ["HTTP_PROXY"] = "http://127.0.0.1:7890"
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:7890"
 from omni.isaac.lab.app import AppLauncher
 
 # local imports
@@ -96,8 +94,8 @@ def main():
     )
 
     env_cfg.domain_randomization.use_custom_randomization = False
-    env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.025 
-    env_cfg.volume = 0.02394 
+    env_cfg.volume = 0.0187613 # set volume
+    # env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.02; env_cfg.com_to_cob_offset[0] += 0.025 # set CoB-CoM shift (m)
 
     env_cfg.use_boundaries = False
     env_cfg.cap_episode_length = False
@@ -109,7 +107,7 @@ def main():
 
     env_cfg.control_method = 'Ssurface'
     env_cfg.s_ratio = 4
-    env_cfg.self_adapt = False
+    env_cfg.self_adapt = True
 
     agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
 
@@ -137,7 +135,7 @@ def main():
 
     # load previously trained model
     ppo_runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
-    ppo_runner.load('/home/zmem063/isaaclab/logs/rsl_rl/warpauv_direct/SSA/model_500.pt')
+    ppo_runner.load(resume_path)
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
 
     # create dir to save logs into
@@ -191,12 +189,12 @@ def main():
         # ([0, 0, 0], [0, 0, 1]),
         # ([0, 0, 0], [0, 0, -1]),
         ([0, 0, 0], [0, 0, 0]),
-        ([1.0001, 0, 0], [0, 0, 0]),
-        ([-1.0001, 0, 0], [0, 0, 0]),
-        ([0, 1.0001, 0], [0, 0, 0]),
-        ([0, -1.0001, 0], [0, 0, 0]),
-        ([0, 0, 1.0001], [0, 0, 0]),
-        ([0, 0, -1.0001], [0, 0, 0])
+        ([1.0, 0, 0], [0, 0, 0]),
+        ([-1.0, 0, 0], [0, 0, 0]),
+        ([0, 1.0, 0], [0, 0, 0]),
+        ([0, -1.0, 0], [0, 0, 0]),
+        ([0, 0, 1.0], [0, 0, 0]),
+        ([0, 0, -1.0], [0, 0, 0])
     ]
 
     obs, _ = env.get_observations()

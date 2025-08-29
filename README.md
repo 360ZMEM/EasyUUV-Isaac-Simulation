@@ -36,8 +36,10 @@ ln -s EasyUUV-Isaac-Simulation <IsaacLab_Path>/source/extensions/omni.isaac.lab_
 Train using the following command (ensure correct Python environment activation and execution from IsaacLab root directory; `--headless` flag is recommended for improved performance):
 
 ```bash
-./isaaclab.sh -p source/standalone/workflows/rsl_rl/train.py --task EasyUUV-Direct-v1 --num_envs 2048
+./isaaclab.sh -p source/standalone/workflows/rsl_rl/train.py --task EasyUUV-Direct-v1 --num_envs 1024 --headless
 ```
+
+Note that when visualization is enabled, loading USD files consumes significant memory. Therefore, if the `--headless` option is not specified, you should reduce the `--num_envs` parameter (e.g., to 512); otherwise, it may lead to excessive resource usage or crashes.
 
 Monitor training with Tensorboard:
 
@@ -64,7 +66,7 @@ The `workflows` directory contains trajectory tracking implementations. For exam
 - `play_eval.py`: Tracks sinusoidal signals.
 - `play_eval_task2.py`: Tracks irregular dynamic signals.
 - `play_eval_step.py`: Tracks step signals.
-- `play_controller.py`: Bypasses RL for direct controller implementation.
+- `play_controller.py`: Direct controller implementation (w/o RL).
 
 Note: Requires prior configuration of `wandb` for real-time visualization. Also, we provide offline file for tracking result: `<IsaacLab_Path>/source/results/rsl_rl/EasyUUV-Isaac-Simulation/.*/model_.*_play/logs.csv`.
 

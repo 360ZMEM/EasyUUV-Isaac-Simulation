@@ -28,8 +28,6 @@ from .rigid_body_hydrodynamics import HydrodynamicForceModels
 from .thruster_dynamics import get_thruster_com_and_orientations
 
 class EasyUUVEnvWindow(BaseEnvWindow):
-    """Window manager for the warpauvenv environment."""
-
     def __init__(self, env: EasyUUVEnv, window_name: str = "IsaacLab"):
         """Initialize the window.
 
@@ -99,26 +97,24 @@ class EasyUUVEnvCfg(DirectRLEnvCfg):
     water_beta = 0.001306 # Pa s, dynamic viscosity of water @ 50 deg F
     rotor_constant = 0.1 / 100.0 # rotor constant used in Gazebo, note /10 because 0.04 is "10x bigger than it should be"
     dyn_time_constant = 0.05 # time constant for linear dynamics for each rotor 
-    volume = 0.022747843530591776 # assuming cubic meters - NEUTRALLY BOUYANT. In orignal sim file volume = 0.0223
-    # volume = 0.03
-    mass = 2.2701e+01 # kg
-    PID_PWM_value = 0.6
-    PID_init_args = torch.tensor([[0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # x-axis rotation, Roll
-                     [0.6 / PID_PWM_value, 0.08/ PID_PWM_value, 0 / PID_PWM_value], # y-axis rotation, Pitch
-                     [1.0 / PID_PWM_value, 0.13/ PID_PWM_value, 0 / PID_PWM_value], # z-axis rotation, Yaw
-                     [0.16 / PID_PWM_value, 0.07/ PID_PWM_value, 0 / PID_PWM_value]],device='cuda:0') # depth
+    volume = 0.0187613 
+    mass = 1.88e+01 # kg
+    PID_init_args = torch.tensor([[1.00, 0.13, 0.00], # x-axis rotation, Roll
+                     [1.00, 0.13, 0.00], # y-axis rotation, Pitch
+                     [1.67, 0.22, 0.00], # z-axis rotation, Yaw
+                     [0.27, 0.12, 0.00]], device='cuda:0') # depth
     
     control_method = 'Ssurface' # Ssurface & PID
     s_ratio = 4 # (Ssurface coeff / PID coeff)
-    self_adapt = False # dummy if control_method == 'PID'
+    self_adapt = True # dummy if control_method == 'PID'
 
      # domain randomization
     # todo: isaaclabs has a built-in method somehow
     class domain_randomization:
         use_custom_randomization = False
         com_to_cob_offset_radius = 0.075
-        volume_range = [0.0227478435 - 0.003, 0.0227478435 + 0.003]
-        mass_range = [2.2701e+01,2.2701e+01] # uniform [lowerbound, upperbound]
+        volume_range = [0.0187613 - 0.003, 0.0187613 + 0.003]
+        mass_range = [1.88e+01,1.88e+01] # uniform [lowerbound, upperbound]
 
 
 class EasyUUVEnv(DirectRLEnv):
