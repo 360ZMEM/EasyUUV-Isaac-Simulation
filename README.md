@@ -6,7 +6,7 @@ This repository contains code implementation for simulator of the paper "EasyUUV
 
 The hardware deployment code repository refers to [**HERE**](https://github.com/360ZMEM/EasyUUV-UUV-Deploy)
 
-<这里放图片>
+![intro](README.assets/intro.png)
 
 ## Simulator Deployment
 
