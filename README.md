@@ -74,15 +74,3 @@ Note: Requires prior configuration of `wandb` for real-time visualization. Also,
 
 This repository is modified based on [this codebase](https://github.com/warplab/isaac-auv-env).
 
-## Citation
-
-If you find the code repository useful for your work, please cite:
-
-```bibtex
-@article{xie2025AUVRScontrol,
-      title={Never too Prim to Swim: An LLM-Enhanced RL-based Adaptive S-Surface Controller for AUVs under Extre Sea Conditions},
-      author={Xie, Guanwen and Xu, Jingzehua and Ding, Yimian and Zhang, Zhi and Zhang, Shuai and Li, Yi},
-      journal={arXiv preprint arXiv:2503.00527},
-      year={2025}}
-```
-
