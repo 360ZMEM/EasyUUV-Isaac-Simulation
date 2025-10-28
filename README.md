@@ -74,3 +74,15 @@ Note: Requires prior configuration of `wandb` for real-time visualization. Also,
 
 This repository is modified based on [this codebase](https://github.com/warplab/isaac-auv-env).
 
+# Cite
+
+If you find it useful for your work please cite:
+
+```bibtex
+@article{xie2025easyuuv,
+      title={EasyUUV: An LLM-Enhanced Universal and Lightweight Sim-to-Real Reinforcement Learning Framework for UUV Attitude Control},
+      author={Xie, Guanwen and Xu, Jingzehua and Tang, Jiwei and Huang, Yubo and Zhang, Shuai and Li, Xiaofan},
+      journal={arXiv preprint arXiv:2510.22126},
+      year={2025}
+    }
+```
